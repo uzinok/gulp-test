@@ -31,18 +31,21 @@ function copy() {
 function html() {
 	return src('src/*.html')
 		.pipe(dest('build/'))
+		.pipe(browserSync.stream());
 }
 
 function styles() {
-	return src('src/styles/**/*.scss')
+	return src('src/styles/*.scss')
 		// .pipe(sass().on('error', sass.logError))
 		.pipe(sass({ style: 'compressed' }).on('error', sass.logError))
 		.pipe(dest('build/styles/'))
+		.pipe(browserSync.stream());
 }
 
 function scripts() {
 	return src('src/js/*.js')
 		.pipe(dest('build/js/'))
+		.pipe(browserSync.stream());
 }
 
 function browsersync() {
@@ -55,8 +58,15 @@ function browsersync() {
 	})
 }
 
+function watchFiles() {
+	watch('src/styles/**/*.scss', styles)
+	watch('src/scripts/**/*.js', scripts)
+	watch('src/**/*.html', html)
+}
+
 function server() {
 	browsersync();
+	watchFiles();
 }
 
 function start(done) {
