@@ -37,7 +37,7 @@ function styles() {
 	return src('src/styles/**/*.scss')
 		// .pipe(sass().on('error', sass.logError))
 		.pipe(sass({ style: 'compressed' }).on('error', sass.logError))
-		.pipe(dest('build/css/'))
+		.pipe(dest('build/styles/'))
 }
 
 function scripts() {
@@ -48,16 +48,24 @@ function scripts() {
 function browsersync() {
 	browserSync.init({ // Инициализация Browsersync
 		server: {
-			baseDir: 'src/'
+			baseDir: 'build/'
 		}, // Указываем папку сервера
 		notify: false, // Отключаем уведомления
 		online: true // Режим работы: true или false
 	})
 }
 
-exports.copy = copy;
-exports.reset = reset;
-exports.scripts = scripts;
-exports.html = html;
-exports.browsersync = browsersync;
-exports.styles = styles;
+function server() {
+	browsersync();
+}
+
+function start(done) {
+	return series(reset, copy, parallel(scripts, styles, html), server)(done);
+}
+
+function build(done) {
+	return series(reset, copy, parallel(scripts, styles, html))(done);
+}
+
+exports.start = start;
+exports.build = build;
