@@ -1,3 +1,5 @@
+const fs = require("fs");
+
 const {
 	src,
 	dest,
@@ -8,6 +10,24 @@ const {
 const browserSync = require('browser-sync').create();
 const sass = require('gulp-sass')(require('sass'));
 
+function reset(done) {
+	fs.rm('./build', { recursive: true, }, () => console.log('Директория успешно удалена.'));
+	done();
+}
+
+function copy() {
+	return src([
+		"./src/fonts/*.{woff2,woff}",
+		"./src/*.ico",
+		"./src/img/**/*.{svg,jpg,jpeg,png,webp,avif}",
+		"./src/video/**/*.{mp4,webm}",
+		"./src/static/**/*.{css,js}",
+	], {
+		base: 'src/'
+	})
+		.pipe(dest('build/'));
+}
+
 function html() {
 	return src('src/*.html')
 		.pipe(dest('build/'))
@@ -17,7 +37,7 @@ function styles() {
 	return src('src/styles/**/*.scss')
 		// .pipe(sass().on('error', sass.logError))
 		.pipe(sass({ style: 'compressed' }).on('error', sass.logError))
-		.pipe(dest('css/'))
+		.pipe(dest('build/css/'))
 }
 
 function scripts() {
@@ -35,6 +55,8 @@ function browsersync() {
 	})
 }
 
+exports.copy = copy;
+exports.reset = reset;
 exports.scripts = scripts;
 exports.html = html;
 exports.browsersync = browsersync;
